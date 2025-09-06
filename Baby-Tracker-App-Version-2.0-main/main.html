@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Baby Tracking Web Applications</title>
+  <style>
+    :root {
+      --primary-blue: #055EAA;
+      --accent-green: #4CAF50;
+      --bg-light: #F5F5DC;
+      --text-gray: #6D6E71;
+      --alert-orange: #F57C00;
+      --white: #FFFFFF;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg-light);
+      color: var(--text-gray);
+    }
+    header {
+      background: var(--primary-blue);
+      color: var(--white);
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      background: var(--white);
+      border-bottom: 1px solid var(--text-gray);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    nav button {
+      flex: 1;
+      padding: 1rem;
+      border: none;
+      background: var(--white);
+      color: var(--primary-blue);
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    nav button:hover,
+    nav button.active {
+      background: var(--accent-green);
+      color: var(--white);
+    }
+    .container { max-width: 800px; margin: 1rem auto; padding: 0 1rem; }
+    .card {
+      background: var(--white);
+      border-radius: 8px;
+      padding: 1.2rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    h2, h3 { color: var(--primary-blue); }
+    input, textarea, select, button {
+      width: 100%;
+      padding: 0.6rem;
+      margin: 0.4rem 0;
+      border-radius: 6px;
+      border: 1px solid var(--text-gray);
+      font-size: 1rem;
+    }
+    button { background: var(--accent-green); color: var(--white); border: none; cursor: pointer; }
+    button:hover { background: #43A047; }
+    section { display: none; }
+    section.active { display: block; }
+    .log-entry {
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      border-left: 3px solid var(--primary-blue);
+      background: #FAFAFA;
+    }
+    .reminder-due {
+      background: #FFF3E0;
+      border-left: 3px solid var(--alert-orange);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Baby Tracking App</h1>
+    <p>Track routines, milestones, health & more</p>
+  </header>
+
+  <!-- Nav bar only after login -->
+  <nav id="mainNav" style="display:none;">
+    <button onclick="showSection('dashboard')" id="btn-dashboard">Dashboard</button>
+    <button onclick="showSection('newsfeed')" id="btn-newsfeed">News Feed</button>
+    <button onclick="logout()" id="btn-logout">Logout</button>
+  </nav>
+
+  <div class="container">
+    <!-- Login -->
+    <section id="login" class="card active">
+      <h2>Login</h2>
+      <input type="email" placeholder="Email" id="loginEmail"/>
+      <input type="password" placeholder="Password" id="loginPassword"/>
+      <button onclick="login()">Login</button>
+      <p>Don’t have an account? <a href="#" onclick="showSection('signup')">Sign up here</a></p>
+    </section>
+
+    <!-- Sign Up -->
+    <section id="signup" class="card">
+      <h2>Sign Up</h2>
+      <input type="text" placeholder="Full Name" id="signupName"/>
+      <input type="email" placeholder="Email" id="signupEmail"/>
+      <input type="password" placeholder="Password" id="signupPassword"/>
+      <button onclick="signup()">Sign Up</button>
+      <p>Already have an account? <a href="#" onclick="showSection('login')">Login</a></p>
+    </section>
+
+    <!-- Dashboard (ALL FEATURES) -->
+    <section id="dashboard" class="card">
+      <h2>Dashboard</h2>
+      <p>Welcome back, <span id="userName"></span>!</p>
+
+      <!-- Feeding -->
+      <div class="card">
+        <h3>Feeding</h3>
+        <select id="feedingType"><option>Breast Milk</option><option>Formula</option><option>Solids</option></select>
+        <input type="number" id="feedingAmount" placeholder="Amount (ml/g)"/>
+        <textarea id="feedingNotes" placeholder="Notes"></textarea>
+        <button onclick="logFeeding()">Log Feeding</button>
+        <div id="feedingLog"></div>
+      </div>
+
+      <!-- Sleep -->
+      <div class="card">
+        <h3>Sleep</h3>
+        <input type="time" id="sleepStart"/> to <input type="time" id="sleepEnd"/>
+        <button onclick="logSleep()">Log Sleep</button>
+        <div id="sleepLog"></div>
+      </div>
+
+      <!-- Diaper -->
+      <div class="card">
+        <h3>Diaper</h3>
+        <select id="diaperType"><option>Wet</option><option>Dirty</option></select>
+        <button onclick="logDiaper()">Log Diaper</button>
+        <div id="diaperLog"></div>
+      </div>
+
+      <!-- Growth -->
+      <div class="card">
+        <h3>Growth</h3>
+        <input type="number" id="weight" placeholder="Weight (kg)"/>
+        <input type="number" id="height" placeholder="Height (cm)"/>
+        <input type="number" id="headSize" placeholder="Head Circumference (cm)"/>
+        <button onclick="logGrowth()">Log Growth</button>
+        <div id="growthLog"></div>
+      </div>
+
+      <!-- Milestones -->
+      <div class="card">
+        <h3>Milestone</h3>
+        <input type="text" id="milestone" placeholder="Milestone (e.g. First word)"/>
+        <button onclick="logMilestone()">Log Milestone</button>
+        <div id="milestoneLog"></div>
+      </div>
+
+      <!-- Journal -->
+      <div class="card">
+        <h3>Journal & Photos</h3>
+        <textarea id="journalEntry" placeholder="Write a note"></textarea>
+        <input type="file" id="journalPhoto"/>
+        <button onclick="logJournal()">Add to Journal</button>
+        <div id="journalLog"></div>
+      </div>
+
+      <!-- Health -->
+      <div class="card">
+        <h3>Health & Vaccinations</h3>
+
+        <h4>Immunizations / Medication</h4>
+        <input type="text" id="vaccineName" placeholder="Name (e.g. Polio, Vitamin D)"/>
+        <input type="date" id="vaccineDate"/>
+        <textarea id="vaccineNotes" placeholder="Notes (e.g. dosage, reaction)"></textarea>
+        <button onclick="logVaccine()">Log Record</button>
+        <div id="vaccineLog"></div>
+
+        <h4>Doctor Visit Reminders</h4>
+        <input type="date" id="reminderDate"/>
+        <textarea id="reminderNotes" placeholder="Reminder note (e.g. 6-month checkup)"></textarea>
+        <button onclick="addReminder()">Add Reminder</button>
+        <div id="reminderLog"></div>
+      </div>
+    </section>
+
+    <!-- News Feed -->
+    <section id="newsfeed" class="card">
+      <h2>News Feed</h2>
+      <div class="card">
+        <h3>🍼 Feeding Tips</h3>
+        <p>Introduce solid foods around 6 months, starting with purees.</p>
+      </div>
+      <div class="card">
+        <h3>💉 Health Update</h3>
+        <p>Don’t forget the 6-month vaccinations: DTaP, Polio, Hib, and more.</p>
+      </div>
+      <div class="card">
+        <h3>😴 Sleep Guidance</h3>
+        <p>Babies typically sleep 14-17 hours per day at 4-12 months.</p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    function showSection(id) {
+      document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+      if(document.getElementById('btn-' + id)) {
+        document.getElementById('btn-' + id).classList.add('active');
+      }
+      document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function signup() {
+      const name = signupName.value.trim();
+      const email = signupEmail.value.trim();
+      const pass = signupPassword.value.trim();
+      if(name && email && pass){
+        localStorage.setItem("babyAppUser", JSON.stringify({name, email, pass}));
+        alert('Signup successful! Please login.');
+        showSection('login');
+      } else {
+        alert("Please fill all fields.");
+      }
+    }
+
+    function login() {
+      const email = loginEmail.value.trim();
+      const pass = loginPassword.value.trim();
+      const user = JSON.parse(localStorage.getItem("babyAppUser"));
+      if(user && user.email === email && user.pass === pass){
+        localStorage.setItem("babyAppLoggedIn", "true");
+        document.getElementById("userName").textContent = user.name;
+        document.getElementById("mainNav").style.display = "flex";
+        showSection('dashboard');
+        loadHealthData();
+      } else {
+        alert("Invalid credentials!");
+      }
+    }
+
+    function logout() {
+      localStorage.setItem("babyAppLoggedIn", "false");
+      document.getElementById("mainNav").style.display = "none";
+      showSection('login');
+    }
+
+    window.onload = () => {
+      const user = JSON.parse(localStorage.getItem("babyAppUser"));
+      const loggedIn = localStorage.getItem("babyAppLoggedIn");
+      if(user && loggedIn === "true"){
+        document.getElementById("userName").textContent = user.name;
+        document.getElementById("mainNav").style.display = "flex";
+        showSection('dashboard');
+        loadHealthData();
+      } else {
+        document.getElementById("mainNav").style.display = "none";
+        showSection('login');
+      }
+    };
+
+    function makeLog(el, text, extraClass="") {
+      const div = document.createElement('div');
+      div.className = 'log-entry ' + extraClass;
+      div.textContent = text;
+      el.appendChild(div);
+    }
+
+    function logFeeding() {
+      makeLog(feedingLog, `🍼 ${feedingType.value} • ${feedingAmount.value} ml/g • ${feedingNotes.value}`);
+    }
+    function logSleep() { makeLog(sleepLog, `😴 From ${sleepStart.value} to ${sleepEnd.value}`); }
+    function logDiaper() { makeLog(diaperLog, `🧷 ${diaperType.value}`); }
+    function logGrowth() { makeLog(growthLog, `📈 W:${weight.value}kg, H:${height.value}cm, Head:${headSize.value}cm`); }
+    function logMilestone() { makeLog(milestoneLog, `🌟 ${milestone.value}`); }
+    function logJournal() {
+      let text = journalEntry.value;
+      if(journalPhoto.files[0]) text += ` (Photo: ${journalPhoto.files[0].name})`;
+      makeLog(journalLog, `📔 ${text}`);
+    }
+
+    // Health
+    function logVaccine() {
+      const name = vaccineName.value, date = vaccineDate.value, notes = vaccineNotes.value;
+      const record = {name, date, notes};
+      let list = JSON.parse(localStorage.getItem("babyVaccines")) || [];
+      list.push(record);
+      localStorage.setItem("babyVaccines", JSON.stringify(list));
+      renderVaccines();
+    }
+    function addReminder() {
+      const date = reminderDate.value, notes = reminderNotes.value;
+      const record = {date, notes};
+      let list = JSON.parse(localStorage.getItem("babyReminders")) || [];
+      list.push(record);
+      localStorage.setItem("babyReminders", JSON.stringify(list));
+      renderReminders();
+    }
+    function renderVaccines() {
+      vaccineLog.innerHTML = "";
+      const list = JSON.parse(localStorage.getItem("babyVaccines")) || [];
+      list.forEach(v => makeLog(vaccineLog, `💉 ${v.name} on ${v.date} (${v.notes})`));
+    }
+    function renderReminders() {
+      reminderLog.innerHTML = "";
+      const today = new Date().toISOString().split("T")[0];
+      const list = JSON.parse(localStorage.getItem("babyReminders")) || [];
+      list.forEach(r => {
+        const isDue = r.date && r.date <= today;
+        makeLog(reminderLog, `📅 ${r.date} • ${r.notes}`, isDue ? "reminder-due" : "");
+      });
+    }
+    function loadHealthData() {
+      renderVaccines();
+      renderReminders();
+    }
+  </script>
+</body>
+</html>
