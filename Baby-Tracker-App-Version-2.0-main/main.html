@@ -465,9 +465,10 @@
     }
 
     // ===== News Feed (Live) =====
-    const FEEDS=[
-      {name:'NewParents • Latest', url:'https://www.reddit.com/r/NewParents/'}
+   const FEEDS=[
+        {name:'NewParents • Latest', url:'https://www.reddit.com/r/NewParents/'}
     ];
+
     function initFeed(){ const sel=$('feedSource'); FEEDS.forEach((f,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=f.name; sel.appendChild(o); }); }
 
     async function fetchRSS(url){
