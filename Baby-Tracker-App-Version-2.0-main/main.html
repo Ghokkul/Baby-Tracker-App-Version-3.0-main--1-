@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Advanced Baby Tracker</title>
+  <title>Baby Tracking Web Intserface</title>
   <style>
     :root{
       --primary:#0A74DA;
@@ -466,10 +466,7 @@
 
     // ===== News Feed (Live) =====
     const FEEDS=[
-      {name:'WHO • Infant & Young Child Feeding', url:'https://www.who.int/feeds/entity/health-topics/infant-feeding/rss.xml'},
-      {name:'UNICEF • Early Childhood', url:'https://www.unicef.org/rss/press-releases/feed'},
-      {name:'CDC • Infant & Toddler Health', url:'https://tools.cdc.gov/api/v2/resources/media/132608.rss'},
-      {name:'Parents.com • Latest', url:'https://www.parents.com/.rss/full/'}
+      {name:'NewParents • Latest', url:'https://www.reddit.com/r/NewParents/'}
     ];
     function initFeed(){ const sel=$('feedSource'); FEEDS.forEach((f,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=f.name; sel.appendChild(o); }); }
 
