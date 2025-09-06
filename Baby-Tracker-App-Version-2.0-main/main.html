@@ -3,327 +3,597 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Baby Tracking Web Application</title>
+  <title>Advanced Baby Tracker</title>
   <style>
-    :root {
-      --primary-blue: #055EAA;
-      --accent-green: #4CAF50;
-      --bg-light: #F5F5DC;
-      --text-gray: #6D6E71;
-      --alert-orange: #F57C00;
-      --white: #FFFFFF;
+    :root{
+      --primary:#0A74DA;
+      --primary-600:#075bb0;
+      --accent:#22AA6B;
+      --bg:#F7F7FA;
+      --card:#FFFFFF;
+      --text:#2d2d2d;
+      --muted:#6b7280;
+      --border:#E5E7EB;
+      --alert:#F59E0B;
     }
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: var(--bg-light);
-      color: var(--text-gray);
+    [data-theme="dark"]{
+      --bg:#0b0f14;
+      --card:#121821;
+      --text:#ECF2F8;
+      --muted:#9aa4b2;
+      --border:#1f2a37;
     }
-    header {
-      background: var(--primary-blue);
-      color: var(--white);
-      padding: 1.5rem;
-      text-align: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    nav {
-      display: flex;
-      justify-content: center;
-      background: var(--white);
-      border-bottom: 1px solid var(--text-gray);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    nav button {
-      flex: 1;
-      padding: 1rem;
-      border: none;
-      background: var(--white);
-      color: var(--primary-blue);
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    nav button:hover,
-    nav button.active {
-      background: var(--accent-green);
-      color: var(--white);
-    }
-    .container { max-width: 800px; margin: 1rem auto; padding: 0 1rem; }
-    .card {
-      background: var(--white);
-      border-radius: 8px;
-      padding: 1.2rem;
-      margin-bottom: 1rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    h2, h3 { color: var(--primary-blue); }
-    input, textarea, select, button {
-      width: 100%;
-      padding: 0.6rem;
-      margin: 0.4rem 0;
-      border-radius: 6px;
-      border: 1px solid var(--text-gray);
-      font-size: 1rem;
-    }
-    button { background: var(--accent-green); color: var(--white); border: none; cursor: pointer; }
-    button:hover { background: #43A047; }
-    section { display: none; }
-    section.active { display: block; }
-    .log-entry {
-      margin: 0.5rem 0;
-      padding: 0.5rem;
-      border-left: 3px solid var(--primary-blue);
-      background: #FAFAFA;
-    }
-    .reminder-due {
-      background: #FFF3E0;
-      border-left: 3px solid var(--alert-orange);
-    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial, "Noto Sans", sans-serif;background:var(--bg);color:var(--text)}
+    header{position:sticky;top:0;z-index:30;background:linear-gradient(90deg,var(--primary),#4f46e5);color:#fff;padding:14px 16px;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+    header .top{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:12px}
+    header h1{font-size:1.2rem;margin:0;font-weight:700;letter-spacing:.2px}
+    header .spacer{flex:1}
+    header .chip{background:rgba(255,255,255,.15);padding:6px 10px;border-radius:999px;font-size:.85rem}
+
+    nav{background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:58px;z-index:20}
+    .tabs{max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap}
+    .tabs button{appearance:none;border:0;background:none;padding:12px 16px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent}
+    .tabs button.active{color:var(--primary);border-color:var(--primary)}
+
+    .container{max-width:1100px;margin:16px auto;padding:0 12px}
+    .grid{display:grid;grid-template-columns:1fr;gap:16px}
+    @media(min-width:900px){.grid{grid-template-columns:2fr 1fr}}
+
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+    .card h3{margin:0 0 10px}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    input,select,textarea,button{width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:transparent;color:inherit}
+    textarea{min-height:80px;resize:vertical}
+    button.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+    button.primary:hover{background:var(--primary-600)}
+    button.ghost{background:transparent}
+    .pill{display:inline-flex;gap:6px;align-items:center;padding:6px 10px;border-radius:999px;border:1px solid var(--border);font-size:.85rem}
+    .muted{color:var(--muted)}
+    .kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .kpi .item{padding:14px;border-radius:12px;border:1px dashed var(--border);text-align:center}
+    .log{display:grid;gap:8px;max-height:240px;overflow:auto}
+    .log-entry{padding:10px 12px;border-left:3px solid var(--primary);background:rgba(79,70,229,.06);border-radius:8px}
+    .due{border-left-color:var(--alert);background:rgba(245,158,11,.08)}
+    .success{border-left-color:var(--accent);background:rgba(34,170,107,.08)}
+
+    .auth{max-width:420px;margin:28px auto}
+    .center{display:flex;justify-content:center;align-items:center}
+    .tiny{font-size:.85rem}
+
+    /* Tables */
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border-bottom:1px solid var(--border);text-align:left}
+    tr:hover td{background:rgba(0,0,0,.03)}
+
+    /* Canvas chart */
+    #growthCanvas{width:100%;height:220px;border:1px solid var(--border);border-radius:10px}
+
+    /* Badges */
+    .badge{display:inline-block;padding:2px 8px;border-radius:999px;background:rgba(10,116,218,.12);color:var(--primary);font-size:.8rem}
+
+    /* Hidden sections */
+    section{display:none}
+    section.active{display:block}
   </style>
 </head>
 <body>
   <header>
-    <h1>Baby Tracking App</h1>
-    <p>Track routines, milestones, health & more</p>
+    <div class="top">
+      <h1>👶 Advanced Baby Tracker</h1>
+      <span class="chip" id="activeBabyChip">No profile</span>
+      <span class="spacer"></span>
+      <button class="pill ghost" id="themeToggle" title="Toggle theme">🌓 <span class="tiny">Theme</span></button>
+      <button class="pill ghost" id="logoutBtn" style="display:none">🚪 Logout</button>
+    </div>
   </header>
 
-  <!-- Nav bar only after login -->
-  <nav id="mainNav" style="display:none;">
-    <button onclick="showSection('dashboard')" id="btn-dashboard">Dashboard</button>
-    <button onclick="showSection('newsfeed')" id="btn-newsfeed">News Feed</button>
-    <button onclick="logout()" id="btn-logout">Logout</button>
+  <nav>
+    <div class="tabs" id="tabs">
+      <button data-tab="auth" class="active">Auth</button>
+      <button data-tab="dashboard">Dashboard</button>
+      <button data-tab="feed">News Feed</button>
+      <button data-tab="timers">Timers</button>
+      <button data-tab="growth">Growth</button>
+      <button data-tab="health">Health</button>
+      <button data-tab="journal">Journal</button>
+      <button data-tab="settings">Settings</button>
+    </div>
   </nav>
 
   <div class="container">
-    <!-- Login -->
-    <section id="login" class="card active">
-      <h2>Login</h2>
-      <input type="email" placeholder="Email" id="loginEmail"/>
-      <input type="password" placeholder="Password" id="loginPassword"/>
-      <button onclick="login()">Login</button>
-      <p>Don’t have an account? <a href="#" onclick="showSection('signup')">Sign up here</a></p>
+    <!-- AUTH -->
+    <section id="auth" class="active">
+      <div class="auth card">
+        <h3>Welcome</h3>
+        <p class="muted tiny">Create a parent account and baby profiles. Everything is stored locally in your browser.</p>
+        <div class="row">
+          <input type="email" id="loginEmail" placeholder="Email"/>
+          <input type="password" id="loginPass" placeholder="Password"/>
+        </div>
+        <div class="row">
+          <button class="primary" id="loginBtn">Log in</button>
+          <button id="signupBtn">Sign up</button>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+        <div class="row">
+          <input type="text" id="babyName" placeholder="Baby name (for quick profile)"/>
+          <button id="quickProfileBtn">Create Baby Profile</button>
+        </div>
+        <div id="authMsg" class="tiny muted"></div>
+      </div>
     </section>
 
-    <!-- Sign Up -->
-    <section id="signup" class="card">
-      <h2>Sign Up</h2>
-      <input type="text" placeholder="Full Name" id="signupName"/>
-      <input type="email" placeholder="Email" id="signupEmail"/>
-      <input type="password" placeholder="Password" id="signupPassword"/>
-      <button onclick="signup()">Sign Up</button>
-      <p>Already have an account? <a href="#" onclick="showSection('login')">Login</a></p>
+    <!-- DASHBOARD -->
+    <section id="dashboard">
+      <div class="grid">
+        <div>
+          <div class="card">
+            <h3>Quick Log</h3>
+            <div class="row">
+              <select id="feedingType">
+                <option>Breast Milk</option>
+                <option>Formula</option>
+                <option>Solids</option>
+              </select>
+              <input type="number" id="feedingAmount" placeholder="Amount (ml/g)"/>
+              <input id="feedingNotes" placeholder="Notes (e.g., side, reaction)"/>
+              <button class="primary" id="logFeedingBtn">Log Feeding 🍼</button>
+            </div>
+            <div class="row">
+              <input type="time" id="sleepStart"> <span class="pill">to</span> <input type="time" id="sleepEnd">
+              <button class="primary" id="logSleepBtn">Log Sleep 😴</button>
+            </div>
+            <div class="row">
+              <select id="diaperType"><option>Wet</option><option>Dirty</option></select>
+              <button class="primary" id="logDiaperBtn">Log Diaper 🧷</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Logs</h3>
+            <div class="log" id="activityLog"></div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <h3>Today at a glance</h3>
+            <div class="kpi">
+              <div class="item"><div class="muted tiny">Feedings</div><div id="kpiFeeds" style="font-weight:800;font-size:1.4rem">0</div></div>
+              <div class="item"><div class="muted tiny">Total Sleep</div><div id="kpiSleep" style="font-weight:800;font-size:1.4rem">0h</div></div>
+              <div class="item"><div class="muted tiny">Diapers</div><div id="kpiDiapers" style="font-weight:800;font-size:1.4rem">0</div></div>
+              <div class="item"><div class="muted tiny">Reminders</div><div id="kpiReminders" style="font-weight:800;font-size:1.4rem">0</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Upcoming Reminders</h3>
+            <div id="reminderList" class="log"></div>
+            <div class="row" style="margin-top:8px">
+              <input type="date" id="remDate">
+              <input type="text" id="remText" placeholder="e.g., 6‑month checkup"/>
+              <button id="addRemBtn">Add</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <!-- Dashboard (ALL FEATURES) -->
-    <section id="dashboard" class="card">
-      <h2>Dashboard</h2>
-      <p>Welcome back, <span id="userName"></span>!</p>
-
-      <!-- Feeding -->
+    <!-- NEWS FEED -->
+    <section id="feed">
       <div class="card">
-        <h3>Feeding</h3>
-        <select id="feedingType"><option>Breast Milk</option><option>Formula</option><option>Solids</option></select>
-        <input type="number" id="feedingAmount" placeholder="Amount (ml/g)"/>
-        <textarea id="feedingNotes" placeholder="Notes"></textarea>
-        <button onclick="logFeeding()">Log Feeding</button>
-        <div id="feedingLog"></div>
+        <h3>Live Parenting & Baby Health News</h3>
+        <p class="tiny muted">Updates every 5 minutes from trusted sources. You can also press Refresh.</p>
+        <div class="row">
+          <select id="feedSource"></select>
+          <button id="refreshFeed" class="primary">Refresh</button>
+        </div>
+        <div id="feedList" class="log" style="max-height:500px"></div>
       </div>
+    </section>
 
-      <!-- Sleep -->
+    <!-- TIMERS -->
+    <section id="timers">
+      <div class="grid">
+        <div class="card">
+          <h3>Feeding Timer</h3>
+          <div class="row">
+            <button id="startFeedTimer" class="primary">Start</button>
+            <button id="stopFeedTimer">Stop & Log</button>
+            <span id="feedTimerDisplay" class="pill">00:00</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Tummy Time</h3>
+          <div class="row">
+            <button id="startTummy" class="primary">Start</button>
+            <button id="stopTummy">Stop & Log</button>
+            <span id="tummyDisplay" class="pill">00:00</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GROWTH -->
+    <section id="growth">
       <div class="card">
-        <h3>Sleep</h3>
-        <input type="time" id="sleepStart"/> to <input type="time" id="sleepEnd"/>
-        <button onclick="logSleep()">Log Sleep</button>
-        <div id="sleepLog"></div>
+        <h3>Record Growth</h3>
+        <div class="row">
+          <input type="number" id="inWeight" placeholder="Weight (kg)" step="0.01">
+          <input type="number" id="inHeight" placeholder="Height (cm)" step="0.1">
+          <input type="number" id="inHead" placeholder="Head Circ (cm)" step="0.1">
+          <button id="logGrowthBtn" class="primary">Add</button>
+        </div>
       </div>
-
-      <!-- Diaper -->
       <div class="card">
-        <h3>Diaper</h3>
-        <select id="diaperType"><option>Wet</option><option>Dirty</option></select>
-        <button onclick="logDiaper()">Log Diaper</button>
-        <div id="diaperLog"></div>
+        <h3>Growth Chart</h3>
+        <canvas id="growthCanvas"></canvas>
+        <div class="tiny muted">Simple local chart. Export data from Settings to share with your pediatrician.</div>
       </div>
-
-      <!-- Growth -->
       <div class="card">
-        <h3>Growth</h3>
-        <input type="number" id="weight" placeholder="Weight (kg)"/>
-        <input type="number" id="height" placeholder="Height (cm)"/>
-        <input type="number" id="headSize" placeholder="Head Circumference (cm)"/>
-        <button onclick="logGrowth()">Log Growth</button>
-        <div id="growthLog"></div>
+        <h3>History</h3>
+        <table>
+          <thead><tr><th>Date</th><th>Weight</th><th>Height</th><th>Head</th></tr></thead>
+          <tbody id="growthTable"></tbody>
+        </table>
       </div>
+    </section>
 
-      <!-- Milestones -->
-      <div class="card">
-        <h3>Milestone</h3>
-        <input type="text" id="milestone" placeholder="Milestone (e.g. First word)"/>
-        <button onclick="logMilestone()">Log Milestone</button>
-        <div id="milestoneLog"></div>
+    <!-- HEALTH -->
+    <section id="health">
+      <div class="grid">
+        <div>
+          <div class="card">
+            <h3>Vaccinations & Medication</h3>
+            <div class="row">
+              <input id="vacName" placeholder="Name (e.g., DTaP, Vitamin D)">
+              <input type="date" id="vacDate">
+              <input id="vacNotes" placeholder="Notes (dose, reaction)">
+              <button id="logVacBtn" class="primary">Log</button>
+            </div>
+            <div id="vacList" class="log"></div>
+          </div>
+          <div class="card">
+            <h3>Doctor Contacts</h3>
+            <div class="row">
+              <input id="docName" placeholder="Doctor name">
+              <input id="docPhone" placeholder="Phone">
+              <input id="docNotes" placeholder="Notes (clinic, hours)">
+              <button id="addDocBtn">Add</button>
+            </div>
+            <table>
+              <thead><tr><th>Name</th><th>Phone</th><th>Notes</th></tr></thead>
+              <tbody id="docTable"></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <h3>Due soon</h3>
+            <div id="dueSoon" class="log"></div>
+          </div>
+        </div>
       </div>
+    </section>
 
-      <!-- Journal -->
+    <!-- JOURNAL -->
+    <section id="journal">
       <div class="card">
         <h3>Journal & Photos</h3>
-        <textarea id="journalEntry" placeholder="Write a note"></textarea>
-        <input type="file" id="journalPhoto"/>
-        <button onclick="logJournal()">Add to Journal</button>
-        <div id="journalLog"></div>
-      </div>
-
-      <!-- Health -->
-      <div class="card">
-        <h3>Health & Vaccinations</h3>
-
-        <h4>Immunizations / Medication</h4>
-        <input type="text" id="vaccineName" placeholder="Name (e.g. Polio, Vitamin D)"/>
-        <input type="date" id="vaccineDate"/>
-        <textarea id="vaccineNotes" placeholder="Notes (e.g. dosage, reaction)"></textarea>
-        <button onclick="logVaccine()">Log Record</button>
-        <div id="vaccineLog"></div>
-
-        <h4>Doctor Visit Reminders</h4>
-        <input type="date" id="reminderDate"/>
-        <textarea id="reminderNotes" placeholder="Reminder note (e.g. 6-month checkup)"></textarea>
-        <button onclick="addReminder()">Add Reminder</button>
-        <div id="reminderLog"></div>
+        <div class="row">
+          <textarea id="jrText" placeholder="Write a sweet note"></textarea>
+          <input type="file" id="jrPhoto" accept="image/*">
+          <button id="addJournal" class="primary">Add to Journal</button>
+        </div>
+        <div id="journalLog" class="log"></div>
       </div>
     </section>
 
-    <!-- News Feed -->
-    <section id="newsfeed" class="card">
-      <h2>News Feed</h2>
-      <div class="card">
-        <h3>🍼 Feeding Tips</h3>
-        <p>Introduce solid foods around 6 months, starting with purees.</p>
-      </div>
-      <div class="card">
-        <h3>💉 Health Update</h3>
-        <p>Don’t forget the 6-month vaccinations: DTaP, Polio, Hib, and more.</p>
-      </div>
-      <div class="card">
-        <h3>😴 Sleep Guidance</h3>
-        <p>Babies typically sleep 14-17 hours per day at 4-12 months.</p>
+    <!-- SETTINGS -->
+    <section id="settings">
+      <div class="grid">
+        <div class="card">
+          <h3>Baby Profiles</h3>
+          <div class="row">
+            <input id="profileName" placeholder="Baby name">
+            <input id="profileDob" type="date" placeholder="DOB">
+            <button id="addProfile" class="primary">Add / Update</button>
+          </div>
+          <div class="row">
+            <select id="profileSelect"></select>
+            <button id="switchProfile">Switch Active</button>
+            <button id="deleteProfile" class="ghost">Delete</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Backup & Restore</h3>
+          <div class="row">
+            <button id="exportBtn">Export Data</button>
+            <input type="file" id="importFile" accept="application/json">
+            <button id="importBtn" class="primary">Import</button>
+          </div>
+          <p class="tiny muted">Backups include all babies, logs, health, growth, and settings.</p>
+        </div>
       </div>
     </section>
   </div>
 
   <script>
-    function showSection(id) {
-      document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
-      if(document.getElementById('btn-' + id)) {
-        document.getElementById('btn-' + id).classList.add('active');
-      }
-      document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-    }
-
-    function signup() {
-      const name = signupName.value.trim();
-      const email = signupEmail.value.trim();
-      const pass = signupPassword.value.trim();
-      if(name && email && pass){
-        localStorage.setItem("babyAppUser", JSON.stringify({name, email, pass}));
-        alert('Signup successful! Please login.');
-        showSection('login');
-      } else {
-        alert("Please fill all fields.");
-      }
-    }
-
-    function login() {
-      const email = loginEmail.value.trim();
-      const pass = loginPassword.value.trim();
-      const user = JSON.parse(localStorage.getItem("babyAppUser"));
-      if(user && user.email === email && user.pass === pass){
-        localStorage.setItem("babyAppLoggedIn", "true");
-        document.getElementById("userName").textContent = user.name;
-        document.getElementById("mainNav").style.display = "flex";
-        showSection('dashboard');
-        loadHealthData();
-      } else {
-        alert("Invalid credentials!");
-      }
-    }
-
-    function logout() {
-      localStorage.setItem("babyAppLoggedIn", "false");
-      document.getElementById("mainNav").style.display = "none";
-      showSection('login');
-    }
-
-    window.onload = () => {
-      const user = JSON.parse(localStorage.getItem("babyAppUser"));
-      const loggedIn = localStorage.getItem("babyAppLoggedIn");
-      if(user && loggedIn === "true"){
-        document.getElementById("userName").textContent = user.name;
-        document.getElementById("mainNav").style.display = "flex";
-        showSection('dashboard');
-        loadHealthData();
-      } else {
-        document.getElementById("mainNav").style.display = "none";
-        showSection('login');
-      }
+    // ===== Utilities =====
+    const $ = (id)=>document.getElementById(id);
+    const todayStr = ()=> new Date().toISOString().slice(0,10);
+    const store = {
+      read(){ try{return JSON.parse(localStorage.getItem('abt-data'))||{accounts:[],profiles:{},active:null,theme:"light"};}catch{ return {accounts:[],profiles:{},active:null,theme:"light"}; }
+      },
+      write(v){ localStorage.setItem('abt-data', JSON.stringify(v)); },
     };
+    const state = store.read();
+    document.documentElement.dataset.theme = state.theme||'light';
 
-    function makeLog(el, text, extraClass="") {
-      const div = document.createElement('div');
-      div.className = 'log-entry ' + extraClass;
-      div.textContent = text;
-      el.appendChild(div);
-    }
+    function save(){ store.write(state); }
 
-    function logFeeding() {
-      makeLog(feedingLog, `🍼 ${feedingType.value} • ${feedingAmount.value} ml/g • ${feedingNotes.value}`);
-    }
-    function logSleep() { makeLog(sleepLog, `😴 From ${sleepStart.value} to ${sleepEnd.value}`); }
-    function logDiaper() { makeLog(diaperLog, `🧷 ${diaperType.value}`); }
-    function logGrowth() { makeLog(growthLog, `📈 W:${weight.value}kg, H:${height.value}cm, Head:${headSize.value}cm`); }
-    function logMilestone() { makeLog(milestoneLog, `🌟 ${milestone.value}`); }
-    function logJournal() {
-      let text = journalEntry.value;
-      if(journalPhoto.files[0]) text += ` (Photo: ${journalPhoto.files[0].name})`;
-      makeLog(journalLog, `📔 ${text}`);
+    function toast(msg){ const d=document.createElement('div'); d.textContent=msg; d.style.cssText='position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 14px;border-radius:10px;z-index:9999;opacity:.95'; document.body.appendChild(d); setTimeout(()=>d.remove(),2000); }
+
+    function humanTime(ms){ const s=Math.floor(ms/1000); const m=Math.floor(s/60), sec=s%60; const h=Math.floor(m/60); const mm=(m%60).toString().padStart(2,'0'); const ss=sec.toString().padStart(2,'0'); return (h? h+':'+mm:ss? mm+':'+ss:'00:00'); }
+
+    // ===== Auth =====
+    function setAuthUI(logged){
+      $('logoutBtn').style.display = logged? 'inline-flex' : 'none';
+      // tabs
+      const tabs = document.querySelectorAll('#tabs button');
+      tabs.forEach(b=>{ if(b.dataset.tab!=='auth') b.style.display = logged? 'inline-block':'none';});
+      if(!logged){ showTab('auth'); }
     }
 
-    // Health
-    function logVaccine() {
-      const name = vaccineName.value, date = vaccineDate.value, notes = vaccineNotes.value;
-      const record = {name, date, notes};
-      let list = JSON.parse(localStorage.getItem("babyVaccines")) || [];
-      list.push(record);
-      localStorage.setItem("babyVaccines", JSON.stringify(list));
-      renderVaccines();
+    function signup(){
+      const email = $('loginEmail').value.trim();
+      const pass = $('loginPass').value.trim();
+      if(!email || !pass) return $('authMsg').textContent='Please enter email & password to sign up';
+      if(state.accounts.some(a=>a.email===email)) return $('authMsg').textContent='Account already exists. Log in instead.';
+      state.accounts.push({email,pass}); save(); $('authMsg').textContent='Sign up successful — now log in.'; toast('Account created');
     }
-    function addReminder() {
-      const date = reminderDate.value, notes = reminderNotes.value;
-      const record = {date, notes};
-      let list = JSON.parse(localStorage.getItem("babyReminders")) || [];
-      list.push(record);
-      localStorage.setItem("babyReminders", JSON.stringify(list));
-      renderReminders();
+    function login(){
+      const email = $('loginEmail').value.trim();
+      const pass = $('loginPass').value.trim();
+      const ok = state.accounts.find(a=>a.email===email && a.pass===pass);
+      if(ok){ state.logged=email; save(); setAuthUI(true); toast('Logged in'); if(!state.active){
+          // create quick profile if provided
+          if($('babyName').value.trim()) quickProfile();
+        }
+        renderAll();
+      } else {
+        $('authMsg').textContent='Invalid credentials';
+      }
     }
-    function renderVaccines() {
-      vaccineLog.innerHTML = "";
-      const list = JSON.parse(localStorage.getItem("babyVaccines")) || [];
-      list.forEach(v => makeLog(vaccineLog, `💉 ${v.name} on ${v.date} (${v.notes})`));
+    function logout(){ delete state.logged; save(); setAuthUI(false); toast('Logged out'); }
+
+    $('signupBtn').addEventListener('click', signup);
+    $('loginBtn').addEventListener('click', login);
+    $('logoutBtn').addEventListener('click', logout);
+
+    function quickProfile(){
+      const name=$('babyName').value.trim(); if(!name) return;
+      const id = 'b_'+Date.now();
+      state.profiles[id] = {id,name,dob: todayStr(), logs:[], growth:[], vaccines:[], reminders:[], docs:[], journal:[], doctors:[]};
+      state.active=id; save(); renderProfiles(); renderAll(); toast('Profile created');
     }
-    function renderReminders() {
-      reminderLog.innerHTML = "";
-      const today = new Date().toISOString().split("T")[0];
-      const list = JSON.parse(localStorage.getItem("babyReminders")) || [];
-      list.forEach(r => {
-        const isDue = r.date && r.date <= today;
-        makeLog(reminderLog, `📅 ${r.date} • ${r.notes}`, isDue ? "reminder-due" : "");
+    $('quickProfileBtn').addEventListener('click', quickProfile);
+
+    // ===== Tabs =====
+    function showTab(id){
+      document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
+      $(id).classList.add('active');
+      document.querySelectorAll('#tabs button').forEach(b=>b.classList.remove('active'));
+      document.querySelector(`#tabs button[data-tab="${id}"]`)?.classList.add('active');
+    }
+    document.querySelectorAll('#tabs button').forEach(btn=>btn.addEventListener('click',()=>showTab(btn.dataset.tab)));
+
+    // ===== Theme =====
+    $('themeToggle').addEventListener('click',()=>{
+      const cur = document.documentElement.dataset.theme==='dark'?'light':'dark';
+      document.documentElement.dataset.theme = cur; state.theme=cur; save();
+    });
+
+    // ===== Profiles (Settings) =====
+    function renderProfiles(){
+      const sel = $('profileSelect'); sel.innerHTML='';
+      Object.values(state.profiles).forEach(p=>{
+        const o=document.createElement('option'); o.value=p.id; o.textContent=p.name + (p.id===state.active?' (active)':''); sel.appendChild(o);
       });
+      $('activeBabyChip').textContent = state.active? (state.profiles[state.active]?.name || 'No profile') : 'No profile';
     }
-    function loadHealthData() {
-      renderVaccines();
-      renderReminders();
+    $('addProfile').addEventListener('click',()=>{
+      const name=$('profileName').value.trim(); const dob=$('profileDob').value || todayStr(); if(!name) return toast('Name required');
+      if(state.active){ state.profiles[state.active].name=name; state.profiles[state.active].dob=dob; }
+      else { const id='b_'+Date.now(); state.profiles[id]={id,name,dob,logs:[],growth:[],vaccines:[],reminders:[],docs:[],journal:[],doctors:[]}; state.active=id; }
+      save(); renderProfiles(); toast('Saved');
+    });
+    $('switchProfile').addEventListener('click',()=>{ const id=$('profileSelect').value; if(id){ state.active=id; save(); renderProfiles(); renderAll(); toast('Switched'); }});
+    $('deleteProfile').addEventListener('click',()=>{ const id=$('profileSelect').value; if(!id) return; if(confirm('Delete this profile?')){ delete state.profiles[id]; if(state.active===id) state.active=null; save(); renderProfiles(); renderAll(); }});
+
+    // ===== Dashboard: Quick Logs =====
+    function pushLog(kind, text, extra={}){
+      const p = state.profiles[state.active]; if(!p) return toast('Create/select a profile first');
+      const entry = {id: 'l_'+Date.now(), kind, text, t: Date.now(), ...extra};
+      p.logs.unshift(entry); save(); renderLogs(); updateKpis();
     }
+    $('logFeedingBtn').addEventListener('click',()=>{
+      const txt = `🍼 ${$('feedingType').value} • ${$('feedingAmount').value||'?'} ml/g • ${$('feedingNotes').value||''}`;
+      pushLog('feed',txt,{amount:+$('feedingAmount').value||0});
+    });
+    $('logSleepBtn').addEventListener('click',()=>{
+      const s=$('sleepStart').value,e=$('sleepEnd').value; pushLog('sleep',`😴 ${s||'?'}—${e||'?'}`,{start:s,end:e});
+    });
+    $('logDiaperBtn').addEventListener('click',()=> pushLog('diaper',`🧷 ${$('diaperType').value}`));
+
+    function renderLogs(){
+      const p = state.profiles[state.active]; const el=$('activityLog'); el.innerHTML=''; if(!p) return;
+      p.logs.slice(0,30).forEach(l=>{ const d=document.createElement('div'); d.className='log-entry'; d.textContent=new Date(l.t).toLocaleString()+ ' • ' + l.text; el.appendChild(d); });
+    }
+
+    function updateKpis(){
+      const p = state.profiles[state.active]; if(!p){ $('kpiFeeds').textContent='0';$('kpiSleep').textContent='0h';$('kpiDiapers').textContent='0';$('kpiReminders').textContent='0'; return; }
+      const start = new Date(); start.setHours(0,0,0,0); const day = p.logs.filter(l=>l.t>=start.getTime());
+      $('kpiFeeds').textContent = day.filter(l=>l.kind==='feed').length;
+      const sleepMin = day.filter(l=>l.kind==='sleep' && l.start&&l.end).reduce((a,b)=>{ const [sh,sm]=b.start.split(':').map(Number); const [eh,em]=b.end.split(':').map(Number); return a + ((eh*60+em)-(sh*60+sm)); },0);
+      $('kpiSleep').textContent = (sleepMin/60).toFixed(1)+'h';
+      $('kpiDiapers').textContent = day.filter(l=>l.kind==='diaper').length;
+      $('kpiReminders').textContent = (state.profiles[state.active].reminders||[]).filter(r=>r.date>=todayStr()).length;
+    }
+
+    // ===== Reminders =====
+    function renderReminders(){
+      const p=state.profiles[state.active]; const el=$('reminderList'); el.innerHTML=''; if(!p) return;
+      const today = todayStr();
+      (p.reminders||[]).sort((a,b)=>a.date.localeCompare(b.date)).forEach(r=>{
+        const dv=document.createElement('div'); dv.className='log-entry '+(r.date<=today? 'due':''); dv.textContent = `${r.date} • ${r.text}`; el.appendChild(dv);
+      });
+      // due soon panel
+      const due=$('dueSoon'); if(due){ due.innerHTML=''; (p.reminders||[]).filter(r=>r.date<=today).forEach(r=>{ const d=document.createElement('div'); d.className='log-entry due'; d.textContent=`${r.date} • ${r.text}`; due.appendChild(d); }); }
+      updateKpis();
+    }
+    $('addRemBtn').addEventListener('click',()=>{
+      const p=state.profiles[state.active]; if(!p) return toast('Select a profile');
+      const date=$('remDate').value||todayStr(); const text=$('remText').value||'Checkup';
+      p.reminders.push({date,text}); save(); renderReminders(); notify(`Reminder set: ${text} on ${date}`);
+    });
+
+    // ===== Notifications =====
+    function notify(msg){
+      if(!('Notification' in window)) return; if(Notification.permission==='granted'){ new Notification('Baby Tracker', {body:msg}); }
+      else if(Notification.permission!=='denied'){ Notification.requestPermission(); }
+    }
+
+    // ===== News Feed (Live) =====
+    const FEEDS=[
+      {name:'WHO • Infant & Young Child Feeding', url:'https://www.who.int/feeds/entity/health-topics/infant-feeding/rss.xml'},
+      {name:'UNICEF • Early Childhood', url:'https://www.unicef.org/rss/press-releases/feed'},
+      {name:'CDC • Infant & Toddler Health', url:'https://tools.cdc.gov/api/v2/resources/media/132608.rss'},
+      {name:'Parents.com • Latest', url:'https://www.parents.com/.rss/full/'}
+    ];
+    function initFeed(){ const sel=$('feedSource'); FEEDS.forEach((f,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=f.name; sel.appendChild(o); }); }
+
+    async function fetchRSS(url){
+      const api = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
+      const res = await fetch(api); if(!res.ok) throw new Error('Fetch failed');
+      const {contents} = await res.json();
+      const xml = new DOMParser().parseFromString(contents,'text/xml');
+      const items=[...xml.querySelectorAll('item')].slice(0,20).map(it=>({
+        title: it.querySelector('title')?.textContent?.trim()||'Untitled',
+        link: it.querySelector('link')?.textContent?.trim()||'#',
+        date: it.querySelector('pubDate')?.textContent ? new Date(it.querySelector('pubDate').textContent).toLocaleString(): '',
+        desc: it.querySelector('description')?.textContent?.replace(/<[^>]+>/g,'').trim().slice(0,200) || ''
+      }));
+      if(items.length===0){ // Try Atom
+        const entries=[...xml.querySelectorAll('entry')].slice(0,20).map(it=>({
+          title: it.querySelector('title')?.textContent?.trim()||'Untitled',
+          link: it.querySelector('link')?.getAttribute('href')||'#',
+          date: it.querySelector('updated')?.textContent ? new Date(it.querySelector('updated').textContent).toLocaleString(): '',
+          desc: it.querySelector('summary')?.textContent?.replace(/<[^>]+>/g,'').trim().slice(0,200) || ''
+        }));
+        return entries;
+      }
+      return items;
+    }
+
+    async function renderFeed(){
+      const el=$('feedList'); el.innerHTML='<div class="muted">Loading…</div>';
+      try{
+        const src=FEEDS[$('feedSource').value||0];
+        const items = await fetchRSS(src.url);
+        el.innerHTML='';
+        items.forEach(it=>{
+          const d=document.createElement('div'); d.className='log-entry';
+          d.innerHTML = `<div style="font-weight:700">${it.title}</div><div class="tiny muted">${it.date}</div><div>${it.desc}</div><a class="badge" href="${it.link}" target="_blank" rel="noopener">Read</a>`;
+          el.appendChild(d);
+        });
+      }catch(e){ el.innerHTML='<div class="log-entry due">Failed to load feed. Try Refresh or pick another source.</div>'; }
+    }
+    $('refreshFeed').addEventListener('click', renderFeed);
+    $('feedSource').addEventListener('change', renderFeed);
+    // auto refresh every 5 minutes
+    setInterval(renderFeed, 5*60*1000);
+
+    // ===== Timers =====
+    function makeTimer(displayEl, onStop){
+      let start=0, id=null;
+      function tick(){ const ms=Date.now()-start; displayEl.textContent=humanTime(ms); }
+      return {
+        start(){ if(id) return; start=Date.now(); id=setInterval(tick,250); },
+        stop(){ if(!id) return 0; clearInterval(id); id=null; const ms=Date.now()-start; onStop?.(ms); displayEl.textContent='00:00'; return ms; }
+      };
+    }
+    const feedTimer = makeTimer($('feedTimerDisplay'), ms=>{ pushLog('feed',`🍼 Timed feed • ${humanTime(ms)}`); });
+    $('startFeedTimer').addEventListener('click',()=>feedTimer.start());
+    $('stopFeedTimer').addEventListener('click',()=>feedTimer.stop());
+
+    const tummyTimer = makeTimer($('tummyDisplay'), ms=>{ pushLog('tummy',`🧸 Tummy time • ${humanTime(ms)}`); });
+    $('startTummy').addEventListener('click',()=>tummyTimer.start());
+    $('stopTummy').addEventListener('click',()=>tummyTimer.stop());
+
+    // ===== Growth =====
+    function logGrowth(){
+      const p=state.profiles[state.active]; if(!p) return toast('Select a profile');
+      const w=parseFloat($('inWeight').value||''); const h=parseFloat($('inHeight').value||''); const head=parseFloat($('inHead').value||'');
+      if(!w && !h && !head) return;
+      p.growth.push({t:Date.now(),date:todayStr(),w,h,head}); save(); renderGrowth(); toast('Growth added');
+    }
+    $('logGrowthBtn').addEventListener('click', logGrowth);
+
+    function renderGrowth(){
+      const p=state.profiles[state.active]; const tb=$('growthTable'); tb.innerHTML=''; if(!p) return;
+      p.growth.sort((a,b)=>a.t-b.t); p.growth.forEach(g=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${g.date}</td><td>${g.w||''}</td><td>${g.h||''}</td><td>${g.head||''}</td>`; tb.appendChild(tr); });
+      drawGrowthChart(p.growth);
+    }
+
+    function drawGrowthChart(data){
+      const canvas=$('growthCanvas'); const ctx=canvas.getContext('2d'); const W=canvas.width=canvas.clientWidth, H=canvas.height=canvas.clientHeight;
+      ctx.clearRect(0,0,W,H);
+      // axes
+      ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--border'); ctx.beginPath(); ctx.moveTo(40,10); ctx.lineTo(40,H-30); ctx.lineTo(W-10,H-30); ctx.stroke();
+      const points = data.map((g,i)=>({x: 50 + i*((W-70)/Math.max(1,data.length-1)), y: H-40 - (g.w||0)*6 }));
+      // grid & labels
+      ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--muted'); ctx.font='12px system-ui';
+      for(let i=0;i<6;i++){ const y=H-40 - i*30; ctx.fillText((i*2)+'kg', 4, y+4); ctx.strokeStyle='rgba(0,0,0,.06)'; ctx.beginPath(); ctx.moveTo(40,y); ctx.lineTo(W-10,y); ctx.stroke(); }
+      // line
+      ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--primary'); ctx.lineWidth=2; ctx.beginPath(); points.forEach((p,i)=>{ if(i===0) ctx.moveTo(p.x,p.y); else ctx.lineTo(p.x,p.y); }); ctx.stroke();
+      // dots
+      ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--accent'); points.forEach(p=>{ ctx.beginPath(); ctx.arc(p.x,p.y,3,0,Math.PI*2); ctx.fill(); });
+    }
+
+    // ===== Health =====
+    function renderVacs(){ const p=state.profiles[state.active]; const el=$('vacList'); el.innerHTML=''; if(!p) return; (p.vaccines||[]).sort((a,b)=>a.date.localeCompare(b.date)).forEach(v=>{ const d=document.createElement('div'); d.className='log-entry success'; d.textContent=`${v.date} • ${v.name} (${v.notes||''})`; el.appendChild(d); }); }
+    $('logVacBtn').addEventListener('click',()=>{ const p=state.profiles[state.active]; if(!p) return; p.vaccines.push({name:$('vacName').value,date:$('vacDate').value||todayStr(),notes:$('vacNotes').value}); save(); renderVacs(); notify(`Recorded: ${$('vacName').value}`); });
+
+    function renderDoctors(){ const p=state.profiles[state.active]; const tb=$('docTable'); tb.innerHTML=''; if(!p) return; (p.doctors||[]).forEach(d=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${d.name}</td><td><a href="tel:${d.phone}">${d.phone}</a></td><td>${d.notes}</td>`; tb.appendChild(tr); }); }
+    $('addDocBtn').addEventListener('click',()=>{ const p=state.profiles[state.active]; if(!p) return; p.doctors.push({name:$('docName').value,phone:$('docPhone').value,notes:$('docNotes').value}); save(); renderDoctors(); });
+
+    // ===== Journal =====
+    $('addJournal').addEventListener('click',()=>{
+      const p=state.profiles[state.active]; if(!p) return toast('Select a profile');
+      const txt=$('jrText').value.trim(); const f=$('jrPhoto').files[0];
+      const entry={t:Date.now(),text:txt};
+      if(f){ const reader=new FileReader(); reader.onload=()=>{ entry.photo=reader.result; p.journal.unshift(entry); save(); renderJournal(); }; reader.readAsDataURL(f); }
+      else { p.journal.unshift(entry); save(); renderJournal(); }
+    });
+    function renderJournal(){ const p=state.profiles[state.active]; const el=$('journalLog'); el.innerHTML=''; if(!p) return; p.journal.forEach(j=>{ const d=document.createElement('div'); d.className='log-entry'; d.innerHTML=`<div class="tiny muted">${new Date(j.t).toLocaleString()}</div><div>${j.text||''}</div>${j.photo? `<img src="${j.photo}" style="max-width:100%;border-radius:8px;margin-top:6px">`:''}`; el.appendChild(d); }); }
+
+    // ===== Backup / Restore =====
+    $('exportBtn').addEventListener('click',()=>{ const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='baby-tracker-backup.json'; a.click(); URL.revokeObjectURL(url); });
+    $('importBtn').addEventListener('click',()=>{ const f=$('importFile').files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ try{ const obj=JSON.parse(r.result); Object.assign(state,obj); save(); renderProfiles(); renderAll(); toast('Import complete'); }catch{ toast('Invalid file'); } }; r.readAsText(f); });
+
+    // ===== Init & Render All =====
+    function renderAll(){ renderLogs(); updateKpis(); renderReminders(); renderGrowth(); renderVacs(); renderDoctors(); renderJournal(); }
+
+    // initial UI
+    setAuthUI(!!state.logged);
+    renderProfiles();
+    initFeed();
+    renderFeed();
+
+    // If logged in, show dashboard
+    if(state.logged){ showTab('dashboard'); }
+
   </script>
 </body>
 </html>
